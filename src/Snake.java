@@ -14,17 +14,26 @@ import javax.swing.Timer;
 
 public class Snake extends JPanel implements KeyListener, ActionListener{
     
+    private boolean lose = false;
+    
+    //length of the snake can have
     private int[] snakeXLength = new int[750];
     private int[] snakeYLength = new int[750];
     
+    //initial postion of snake
+    private final int[] initialXPos = new int[]{100, 75, 50};
+    private final int initialYPos = 100;
+    
+    //direction of snake
     private boolean left = false;
     private boolean right = false;
     private boolean up = false;
     private boolean down = false;
     
+    //icon for the snake
     private ImageIcon titleImage;
     private ImageIcon snakeImage;
-    private ImageIcon enemyImage;
+    private ImageIcon foodImage;
     private ImageIcon rightMouth;
     private ImageIcon leftMouth;
     private ImageIcon upMouth;
@@ -61,15 +70,34 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
         
         //set to default location
         if(moves == 0){
-            snakeXLength[2] = 50;
-            snakeXLength[1] = 75;
-            snakeXLength[0] = 100;
-            
-            snakeYLength[2] = 100;
-            snakeYLength[1] = 100;
-            snakeYLength[0] = 100;
+
+            setInitialSnakePosition(this.initialXPos, this.initialYPos);
         }
         
+        initComponents(graphics);
+        
+        initSnakeIcon(graphics);
+        
+        initFoodPosition(graphics);
+        
+        snakeGameOver(graphics);
+
+        graphics.dispose();
+    }
+
+    //Initialize Snake Position
+    public void setInitialSnakePosition(int[] initialXPos, int initialYPos){
+        snakeXLength[2] = initialXPos[2];
+        snakeXLength[1] = initialXPos[1];
+        snakeXLength[0] = initialXPos[0];
+            
+        snakeYLength[2] = initialYPos;
+        snakeYLength[1] = initialYPos;
+        snakeYLength[0] = initialYPos;
+    }
+    
+    //Initialize the component of the frame
+    public void initComponents(Graphics graphics){
         //draw title image border
         graphics.setColor(Color.WHITE);
         graphics.drawRect(24, 10, 851, 55);
@@ -95,8 +123,10 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
         graphics.setColor(Color.BLACK);
         graphics.setFont(new Font("arial", Font.PLAIN, 14));
         graphics.drawString("Length: " + lengthOfSnake, 780, 50);
-        
-        //initialize icon
+    }
+    
+    //Initialize the snake image icon
+    public void initSnakeIcon(Graphics graphics){
         if(moves == 0){
             rightMouth = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\rightmouth.png");
             rightMouth.paintIcon(this, graphics, snakeXLength[0], snakeYLength[0]);
@@ -127,8 +157,11 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
                 snakeImage.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
         }
-        
-        enemyImage = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\strawberry.png");
+    }
+    
+    //Initialize the food position
+    public void initFoodPosition(Graphics graphics){
+        foodImage = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\strawberry.png");
         
         if((foodXPos[xPos] == snakeXLength[0]) && (foodYPos[yPos] == snakeYLength[0])){
             scores++;
@@ -137,8 +170,11 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             yPos = random.nextInt(23);
         }
         
-        enemyImage.paintIcon(this, graphics, foodXPos[xPos], foodYPos[yPos]);
-        
+        foodImage.paintIcon(this, graphics, foodXPos[xPos], foodYPos[yPos]);
+    }
+    
+    //Game Over
+    public void snakeGameOver(Graphics graphics){
         //lose (head touch body)
         for(int i = 1; i < lengthOfSnake; i++){
             if((snakeXLength[i] == snakeXLength[0]) && (snakeYLength[i] == snakeYLength[0])){
@@ -157,12 +193,11 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
                 moves = 0;
                 scores = 0;
                 lengthOfSnake = 3;
+                lose = true;
             }
         }
-        
-        graphics.dispose();
     }
-
+    
     @Override
     public void keyTyped(KeyEvent e) {
         
@@ -170,14 +205,8 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
 
     @Override
     public void keyPressed(KeyEvent e) {
-
-        if(e.getKeyCode() == KeyEvent.VK_SPACE){
-            moves = 0;
-            scores = 0;
-            lengthOfSnake = 3;
-            repaint();
-        }
-        else{
+        
+        if(lose == false){
             if(e.getKeyCode() == KeyEvent.VK_RIGHT){
                 moves++;
                 right = true;
@@ -241,6 +270,13 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
                 left = false;
                 right = false;
             }
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_SPACE){
+            moves = 0;
+            scores = 0;
+            lengthOfSnake = 3;
+            lose = false;
+            repaint();
         }
 
     }
