@@ -25,10 +25,10 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     private final int initialYPos = 100;
     
     //direction of snake
-    private boolean moveLeft = false;
-    private boolean moveRight = false;
-    private boolean moveUp = false;
-    private boolean moveDown = false;
+    private boolean left = false;
+    private boolean right = false;
+    private boolean up = false;
+    private boolean down = false;
     
     //icon for the snake
     private ImageIcon titleImage;
@@ -134,19 +134,19 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
 
         for(int i = 0; i < lengthOfSnake; i++){
             
-            if(i == 0 && moveRight){
+            if(i == 0 && right){
                 rightMouth = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\rightmouth.png");
                 rightMouth.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
-            if(i == 0 && moveLeft){
+            if(i == 0 && left){
                 leftMouth = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\leftmouth.png");
                 leftMouth.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
-            if(i == 0 && moveUp){
+            if(i == 0 && up){
                 upMouth = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\upmouth.png");
                 upMouth.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
-            if(i == 0 && moveDown){
+            if(i == 0 && down){
                 downMouth = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\downmouth.png");
                 downMouth.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
@@ -178,10 +178,10 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
         //lose (head touch body)
         for(int i = 1; i < lengthOfSnake; i++){
             if((snakeXLength[i] == snakeXLength[0]) && (snakeYLength[i] == snakeYLength[0])){
-                moveRight = false;
-                moveLeft = false;
-                moveUp = false;
-                moveDown = false;
+                right = false;
+                left = false;
+                up = false;
+                down = false;
                 
                 graphics.setColor(Color.WHITE);
                 graphics.setFont(new Font("arial", Font.BOLD, 50));
@@ -209,66 +209,66 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
         if(lose == false){
             if(e.getKeyCode() == KeyEvent.VK_RIGHT){
                 moves++;
-                moveRight = true;
+                right = true;
 
-                //prevent snake go moveLeft when it going moveRight(2D)
-                if(!moveLeft){
-                    moveRight = true;
+                //prevent snake go left when it going right(2D)
+                if(!left){
+                    right = true;
                 }else{
-                    moveRight = false;
-                    moveLeft = true;
+                    right = false;
+                    left = true;
                 }
 
-                moveUp = false;
-                moveDown = false;
+                up = false;
+                down = false;
             }
 
             if(e.getKeyCode() == KeyEvent.VK_LEFT){
                 moves++;
-                moveLeft = true;
+                left = true;
 
-                //prevent snake go moveLeft when it going moveRight(2D)
-                if(!moveRight){
-                    moveLeft = true;
+                //prevent snake go left when it going right(2D)
+                if(!right){
+                    left = true;
                 }else{
-                    moveLeft = false;
-                    moveRight = true;
+                    left = false;
+                    right = true;
                 }
 
-                moveUp = false;
-                moveDown = false;
+                up = false;
+                down = false;
             }
 
             if(e.getKeyCode() == KeyEvent.VK_UP){
                 moves++;
-                moveUp = true;
+                up = true;
 
-                //prevent snake go moveLeft when it going moveRight(2D)
-                if(!moveDown){
-                    moveUp = true;
+                //prevent snake go left when it going right(2D)
+                if(!down){
+                    up = true;
                 }else{
-                    moveUp = false;
-                    moveDown = true;
+                    up = false;
+                    down = true;
                 }
 
-                moveLeft = false;
-                moveRight = false;
+                left = false;
+                right = false;
             }
 
             if(e.getKeyCode() == KeyEvent.VK_DOWN){
                 moves++;
-                moveDown = true;
+                down = true;
 
-                //prevent snake go moveLeft when it going moveRight(2D)
-                if(!moveUp){
-                    moveDown = true;
+                //prevent snake go left when it going right(2D)
+                if(!up){
+                    down = true;
                 }else{
-                    moveDown = false;
-                    moveUp = true;
+                    down = false;
+                    up = true;
                 }
 
-                moveLeft = false;
-                moveRight = false;
+                left = false;
+                right = false;
             }
         }
         else if(e.getKeyCode() == KeyEvent.VK_SPACE){
@@ -290,7 +290,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     public void actionPerformed(ActionEvent e) {
         timer.start();
         
-        if(moveRight){
+        if(right){
             for(int i = lengthOfSnake - 1; i >= 0; i--){
                 snakeYLength[i + 1] = snakeYLength[i];
             }
@@ -312,7 +312,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             repaint();
 
         }
-        if(moveLeft){
+        if(left){
             for(int i = lengthOfSnake - 1; i >= 0; i--){
                 snakeYLength[i + 1] = snakeYLength[i];
             }
@@ -333,7 +333,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             //call paint
             repaint();
         }
-        if(moveUp){
+        if(up){
             for(int i = lengthOfSnake - 1; i >= 0; i--){
                 snakeXLength[i + 1] = snakeXLength[i];
             }
@@ -354,7 +354,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             //call paint
             repaint();
         }
-        if(moveDown){
+        if(down){
             for(int i = lengthOfSnake - 1; i >= 0; i--){
                 snakeXLength[i + 1] = snakeXLength[i];
             }
