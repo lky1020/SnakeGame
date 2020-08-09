@@ -13,7 +13,7 @@ import javax.swing.Timer;
 
 
 public class Snake extends JPanel implements KeyListener, ActionListener{
-    
+    //Testing
     private boolean lose = false;
     
     //length of the snake can have
