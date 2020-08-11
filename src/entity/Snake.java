@@ -20,6 +20,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     //testing 2
     private int width;
     private int height;
+    //testing3
     
     //length of the snake can have
     private int[] snakeXLength = new int[750];
