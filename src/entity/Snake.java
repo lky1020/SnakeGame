@@ -15,7 +15,7 @@ import javax.swing.Timer;
 
 
 public class Snake extends JPanel implements KeyListener, ActionListener{
-    //Testing
+    //Testing 1
     private boolean lose = false;
     
     private int width;
