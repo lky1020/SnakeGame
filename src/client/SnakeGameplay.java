@@ -8,6 +8,8 @@ package client;
 import entity.*;
 import java.awt.Color;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
@@ -86,25 +88,38 @@ public class SnakeGameplay extends javax.swing.JFrame {
 
     private void playGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playGameButtonActionPerformed
         // TODO add your handling code here:
-        this.dispose();
+        //Get Game Level
+        Object[] gameLevel = {"Easy", "Normal", "Hard"};
         
-        int width = 925;
-        int height = 720;
+        JPanel gameLevelPanel = new JPanel();
+        gameLevelPanel.add(new JLabel("Please Choose the Game's Level: "));
         
-        JFrame jframeSnake = new JFrame();
+        int gameLevelResult = JOptionPane.showOptionDialog(null, gameLevelPanel, "Game Level",
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+                null, gameLevel, null);
         
-        
-        jframeSnake.setTitle("Snake Game");
-        jframeSnake.setBounds(10, 10, width, height);
-        jframeSnake.setResizable(false);
-        jframeSnake.setVisible(true);
-        jframeSnake.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jframeSnake.setLocationRelativeTo(null);
-        jframeSnake.getContentPane().setBackground(Color.DARK_GRAY);
+        //Only able play gae when player choose game level
+        if(gameLevelResult == 0 || gameLevelResult == 1 || gameLevelResult == 2){
+            this.dispose();
 
-        Snake gameplay = new Snake(width, height);
+            int width = 925;
+            int height = 720;
 
-        jframeSnake.add(gameplay);
+            JFrame jframeSnake = new JFrame();
+
+            jframeSnake.setTitle("Snake Game");
+            jframeSnake.setBounds(10, 10, width, height);
+            jframeSnake.setResizable(false);
+            jframeSnake.setVisible(true);
+            jframeSnake.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            jframeSnake.setLocationRelativeTo(null);
+            jframeSnake.getContentPane().setBackground(Color.DARK_GRAY);
+
+            Snake gameplay = new Snake(width, height, gameLevelResult + 1);
+
+            jframeSnake.add(gameplay);
+        }
+
     }//GEN-LAST:event_playGameButtonActionPerformed
 
     /**

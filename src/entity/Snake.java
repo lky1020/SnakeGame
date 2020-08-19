@@ -19,7 +19,6 @@ import javax.swing.*;
 public class Snake extends JPanel implements KeyListener, ActionListener{
     
     private static final int TOTAL_FOOD = 100;
-    private int totalFood = 0;
     
     private boolean isLose = false;
     private boolean isExit = false;
@@ -56,6 +55,9 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     private int[] foodYPos = null;
     private Food foodPosition = new Food();
     
+    // Added Level Object
+    private GameLevel level = new GameLevel();
+    
     private int scores = 0;
     
     //ADT
@@ -63,14 +65,15 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     
     public Snake(){}
     
-    public Snake(int boardWidth, int boardHeight){
+    public Snake(int boardWidth, int boardHeight, int gameLevelResult){
 
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
 
-        //Player
-        this.setMinutes(1);
+        //Level
+        level.setLevel(gameLevelResult);//set the level of the game
+        this.setMinutes(level.getPlayTime()); //only will use minutes after this
         initSnakeTime(this.getMinutes());
         
         //Set board size
@@ -81,7 +84,11 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
         this.setFoodXPos(foodPosition.generateFoodRange(25, this.getBoardWidth()));
         this.setFoodYPos(foodPosition.generateFoodRange(75, this.getBoardHeight()));
         
+        //Generate All Food and queue it
         this.generateTotalFood();
+        
+        //Add obstacle into arrayList
+        level.addObstaclePos();
         
         //the speed of snake
         snakeSpeed = new Timer(snakeDelay, this);
@@ -186,10 +193,14 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             initComponents(graphics);
 
             initSnakeIcon(graphics);
+            
+            snakeGameOver(graphics);
 
             initFoodPosition(graphics);
 
-            snakeGameOver(graphics);
+            initObstaclePosition(graphics);
+            
+            
             
             graphics.dispose();
             
@@ -289,16 +300,88 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
         }
     }
     
+    //Game Over (will call before initFoodPosition to prevent food not eaten and scores not refresh)
+    public void snakeGameOver(Graphics graphics){
+        
+        boolean gameOver = false;
+        
+        //isLose (head touch tail || head touch obstacle)
+        for(int i = 1; i < lengthOfSnake; i++){
+            if((snakeXLength[i] == snakeXLength[0]) && (snakeYLength[i] == snakeYLength[0])){
+
+                graphics.setColor(Color.WHITE);
+                graphics.setFont(new Font("arial", Font.BOLD, 50));
+                graphics.drawString("Game Over", 300, 300);
+                
+                gameOver = true;
+
+            }
+        }
+        
+        // Check for obstacle - If snake hit obstacle then game over
+        for(int i = 1; i <= level.getObstacle().getLength(); i++){
+            if((snakeXLength[0] == level.getObstacle().getEntry(i).getPosX()) && (snakeYLength[0]) == level.getObstacle().getEntry(i).getPosY()){
+                
+                graphics.setColor(Color.WHITE);
+                graphics.setFont(new Font("arial", Font.BOLD, 50));
+                graphics.drawString("Game Over", 300, 300);
+                
+                gameOver = true;
+            }
+        }
+        
+        //Time's up
+        if(this.getMinutes() == 0 && this.getSeconds() == 0){
+
+            graphics.setColor(Color.WHITE);
+            graphics.setFont(new Font("arial", Font.BOLD, 50));
+            graphics.drawString("Time's Up", 320, 300);
+
+            gameOver = true;
+        }
+        
+        //Food Finish
+        if(foodQueue.isEmpty()){
+            
+            graphics.setColor(Color.WHITE);
+            graphics.setFont(new Font("arial", Font.BOLD, 50));
+            graphics.drawString("Game Completed", 230, 300);
+            
+            gameOver = true;
+        }
+        
+        if(gameOver){
+            //Not allow key input anymore
+            direction = 'n';
+            
+            graphics.setFont(new Font("arial", Font.BOLD, 20));
+            graphics.drawString("Space to RESTART", 350, 340);
+
+            graphics.setFont(new Font("arial", Font.BOLD, 18));
+            graphics.drawString("Esc to Main Menu", 360, 380);
+            
+            //Prevent snake move
+            movement = false;
+            
+            //initialize snake game
+            scores = 0;
+            lengthOfSnake = 3;
+
+            //Inidcate Game Over of Game Finish (Food Finish || Time's Up || Game Over)
+            this.setIsLose(true);
+        }
+        
+    }
+    
     //Initialize the foodPosition position
     public void initFoodPosition(Graphics graphics){
 
-        if(totalFood < TOTAL_FOOD){
+        if(!foodQueue.isEmpty()){
             foodPosition.setFoodImage(new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\strawberry.png"));
         
             if((this.getFoodXPos()[foodPosition.getXPos()] == snakeXLength[0]) && (this.getFoodYPos()[foodPosition.getYPos()] == snakeYLength[0])){
                 scores++;
                 lengthOfSnake++;
-                totalFood++;
                 
                 //dequeue the first position after snake eat the food
                 foodQueue.dequeue();
@@ -309,73 +392,30 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             //getfront for the foodPosition after dequeue
             foodPosition = foodQueue.getFront();
             
-        }else{
-            totalFood++;
         }
     }
     
-    //Game Over
-    public void snakeGameOver(Graphics graphics){
-        //isLose (head touch tail)
-        for(int i = 1; i < lengthOfSnake; i++){
-            if((snakeXLength[i] == snakeXLength[0]) && (snakeYLength[i] == snakeYLength[0])){
-                direction = 'n';
+    //Draw the obstacle
+    private void initObstaclePosition(Graphics graphics) {
+        level.setObstacleImg(new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\obstacle.png"));
+        
+        for(int i = 1; i <= level.getObstacle().getLength(); i++){
+            level.getObstacleImg().paintIcon(this, graphics, level.getObstacle().getEntry(i).getPosX(), level.getObstacle().getEntry(i).getPosY());
 
-                graphics.setColor(Color.WHITE);
-                graphics.setFont(new Font("arial", Font.BOLD, 50));
-                graphics.drawString("Game Over", 300, 300);
-
-                graphics.setFont(new Font("arial", Font.BOLD, 20));
-                graphics.drawString("Space to RESTART", 350, 340);
-
-                graphics.setFont(new Font("arial", Font.BOLD, 18));
-                graphics.drawString("Esc to Main Menu", 360, 380);
+            //Prevent Food and Obstacle in same position (food will set at initFoodPosition
+            if(!foodQueue.isEmpty() && (foodXPos[foodPosition.getXPos()] == level.getObstacle().getEntry(i).getPosX()) && (foodYPos[foodPosition.getYPos()] == level.getObstacle().getEntry(i).getPosY())){
                 
-                movement = false;
-                scores = 0;
-                lengthOfSnake = 3;
+                //Dequeue the food that duplicate the obstacle
+                foodQueue.dequeue();
                 
-                this.setIsLose(true);
+                //getfront for the foodPosition after dequeue
+                foodPosition = foodQueue.getFront();
             }
-        }
-        
-        //Time's up
-        if(this.getMinutes() == 0 && this.getSeconds() == 0){
-            direction = 'n';
-            movement = false;
-            this.setIsLose(true); //to indicate the game finish
-            
-            graphics.setColor(Color.WHITE);
-            graphics.setFont(new Font("arial", Font.BOLD, 50));
-            graphics.drawString("Time's Up", 320, 300);
-            
-            graphics.setFont(new Font("arial", Font.BOLD, 20));
-            graphics.drawString("Space to RESTART", 350, 340);
 
-            graphics.setFont(new Font("arial", Font.BOLD, 18));
-            graphics.drawString("Esc to Main Menu", 360, 380);
         }
-        
-        //Food Finish
-        if(totalFood > TOTAL_FOOD){
-            direction = 'n';
-            movement = false;
-            this.setIsLose(true); //to indicate the game finish
-            
-            graphics.setColor(Color.WHITE);
-            graphics.setFont(new Font("arial", Font.BOLD, 50));
-            graphics.drawString("Game Completed", 230, 300);
-            
-            graphics.setFont(new Font("arial", Font.BOLD, 20));
-            graphics.drawString("Space to RESTART", 350, 340);
-
-            graphics.setFont(new Font("arial", Font.BOLD, 18));
-            graphics.drawString("Esc to Main Menu", 360, 380);
-        }
-        
     }
-    
-    public void initSnakeTime(int minutes){
+
+    public final void initSnakeTime(int minutes){
         this.setMinutes(minutes);
         this.setSeconds(0);
     }
@@ -451,6 +491,11 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             scores = 0;
             lengthOfSnake = 3;
             this.setMinutes(1);
+            
+            //Generate All Food and queue it
+            foodQueue.clear();  //clea previous foodQueue
+            this.generateTotalFood();
+        
             this.setIsLose(false);
             repaint();
         }
