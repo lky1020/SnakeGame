@@ -24,19 +24,19 @@ public class Food {
         this.foodImage = foodImage;
     }
 
-    public int getxPos() {
+    public int getXPos() {
         return xPos;
     }
 
-    public void setxPos(int xPos) {
+    public void setXPos(int xPos) {
         this.xPos = xPos;
     }
 
-    public int getyPos() {
+    public int getYPos() {
         return yPos;
     }
 
-    public void setyPos(int yPos) {
+    public void setYPos(int yPos) {
         this.yPos = yPos;
     }
     
@@ -66,5 +66,5 @@ public class Food {
         
         return random.nextInt(length);
     }
-
+    
 }

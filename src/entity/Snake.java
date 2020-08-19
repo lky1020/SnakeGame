@@ -1,6 +1,8 @@
 package entity;
 
 
+import adt.*;
+import client.SnakeGameplay;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -9,19 +11,26 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Random;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.*;
 
 
 public class Snake extends JPanel implements KeyListener, ActionListener{
-    //Testing 1
-    private boolean lose = false;
-    //testing 2
-    private int width;
-    private int height;
-    //testing3
-    //testing 4
+    
+    private static final int TOTAL_FOOD = 100;
+    private int totalFood = 0;
+    
+    private boolean isLose = false;
+    private boolean isExit = false;
+    
+    private int boardWidth;
+    private int boardHeight;
+    
+    //Player level
+    int minutes;
+    int seconds;
+    Timer snakeLife;
     
     //length of the snake can have
     private int[] snakeXLength = new int[750];
@@ -38,55 +47,158 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     private ImageIcon snakeImage;
     
     private int lengthOfSnake = 3;
-    private int movement = 0;
+    private boolean movement = false;
         
-    private Timer timer;
-    private int delay = 100;
+    private Timer snakeSpeed;
+    private int snakeDelay = 100;
     
     private int[] foodXPos = null;
     private int[] foodYPos = null;
-    private Food food = new Food();
+    private Food foodPosition = new Food();
     
     private int scores = 0;
     
+    //ADT
+    QueueInterface<Food> foodQueue = new CircularLinkedQueue<>();
+    
     public Snake(){}
     
-    public Snake(int width, int height){
+    public Snake(int boardWidth, int boardHeight){
+
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+
+        //Player
+        this.setMinutes(1);
+        initSnakeTime(this.getMinutes());
         
-        this.width = width - 75; //set to 850
-        this.height = height - 95; //set to 625
+        //Set board size
+        this.setBoardWidth(boardWidth - 75); //set to 850
+        this.setBoardHeight(boardHeight - 95); //set to 625
+
+        //generate foodPosition range
+        this.setFoodXPos(foodPosition.generateFoodRange(25, this.getBoardWidth()));
+        this.setFoodYPos(foodPosition.generateFoodRange(75, this.getBoardHeight()));
         
-        //generate food range
-        foodXPos = food.generateFoodRange(25, this.width);
-        foodYPos = food.generateFoodRange(75, this.height);
+        this.generateTotalFood();
         
-        food.setxPos(food.generateFoodPositionCoordinate(foodXPos.length));
-        food.setyPos(food.generateFoodPositionCoordinate(foodYPos.length));
+        //the speed of snake
+        snakeSpeed = new Timer(snakeDelay, this);
+        snakeSpeed.start();
         
-        timer = new Timer(delay, this);
-        timer.start();
+        //snake life(time)
+        snakeTime();
+        snakeLife.start();
     }
     
-    public void paint(Graphics graphics){
-        
-        //set to default location
-        if(movement == 0){
+    //setter && getters
+    public boolean getIsLose() {
+        return isLose;
+    }
 
-            setInitialSnakePosition(this.initialXPos, this.initialYPos);
+    public void setIsLose(boolean isLose) {
+        this.isLose = isLose;
+    }
+
+    public boolean getIsExit() {
+        return isExit;
+    }
+
+    public void setIsExit(boolean isExit) {    
+        this.isExit = isExit;
+    }
+
+    public int getBoardWidth() {
+        return boardWidth;
+    }
+
+    public void setBoardWidth(int boardWidth) {
+        this.boardWidth = boardWidth;
+    }
+
+    public int getBoardHeight() {
+        return boardHeight;
+    }
+
+    public void setBoardHeight(int boardHeight) {    
+        this.boardHeight = boardHeight;
+    }
+
+    public int getMinutes() {
+        return minutes;
+    }
+    
+    public void setMinutes(int minutes) {
+        this.minutes = minutes;
+        this.setSeconds(0);
+    }
+
+    public int getSeconds() {
+        return seconds;
+    }
+
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
+    }
+
+    public int[] getFoodXPos() {
+        return foodXPos;
+    }
+
+    public void setFoodXPos(int[] foodXPos) {
+        this.foodXPos = foodXPos;
+    }
+
+    public int[] getFoodYPos() {
+        return foodYPos;
+    }
+
+    public void setFoodYPos(int[] foodYPos) {
+        this.foodYPos = foodYPos;
+    }
+    
+    //Start snake
+    public void generateTotalFood(){
+        for(int i = 0; i < TOTAL_FOOD; i++){
+            Food foodTemp = new Food();
+            
+            foodTemp.setXPos(foodTemp.generateFoodPositionCoordinate(foodXPos.length));
+            foodTemp.setYPos(foodTemp.generateFoodPositionCoordinate(foodYPos.length));
+            
+            //add into queue
+            foodQueue.enqueue(foodTemp);
+            
         }
         
-        initComponents(graphics);
-        
-        initSnakeIcon(graphics);
-        
-        initFoodPosition(graphics);
-        
-        snakeGameOver(graphics);
+        foodPosition = foodQueue.getFront();
+    }
+    
+    @Override
+    public void paint(Graphics graphics){
+        if(this.getIsExit() != true){
+            //set to default location
+            if(movement == false){
 
-        graphics.dispose();
+                setInitialSnakePosition(this.initialXPos, this.initialYPos);
+            }
+
+            initComponents(graphics);
+
+            initSnakeIcon(graphics);
+
+            initFoodPosition(graphics);
+
+            snakeGameOver(graphics);
+            
+            graphics.dispose();
+            
+        }else{
+            SnakeGameplay snakeGameplay = new SnakeGameplay();
+            snakeGameplay.setVisible(true);
+            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            topFrame.dispose();
+        }
     }
 
     //Initialize Snake Position
@@ -102,21 +214,25 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     
     //Initialize the component of the frame
     public void initComponents(Graphics graphics){
+        
         //draw title image border
         graphics.setColor(Color.WHITE);
-        graphics.drawRect(30, 10, this.width, 50);
+        graphics.drawRect(30, 10, this.getBoardWidth(), 50);
+        
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(30, 10, this.getBoardWidth(), 50);
         
         //draw the title image
-        snakeImage = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\snaketitle.jpg");
-        snakeImage.paintIcon(this, graphics, 30, 11);
+        snakeImage = new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\snaketitle.jpg");
+        snakeImage.paintIcon(this, graphics, 420, 11);
         
         //draw border for gameplay
         graphics.setColor(Color.WHITE);
-        graphics.drawRect(30, 74, this.width, 585);
+        graphics.drawRect(30, 74, this.getBoardWidth(), 585);
         
         //draw background for the gameplay
         graphics.setColor(Color.LIGHT_GRAY);
-        graphics.fillRect(25, 75, this.width + 10, 585);
+        graphics.fillRect(25, 75, this.getBoardWidth() + 10, 585);
         
         //draw score
         graphics.setColor(Color.BLACK);
@@ -127,18 +243,18 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
         graphics.setColor(Color.BLACK);
         graphics.setFont(new Font("arial", Font.PLAIN, 14));
         graphics.drawString("Length: " + lengthOfSnake, 35, 50);
-        
+ 
         //draw time
         graphics.setColor(Color.BLACK);
         graphics.setFont(new Font("arial", Font.PLAIN, 14));
-        graphics.drawString("Time: " + lengthOfSnake, 780, 50);
+        graphics.drawString("Time: " + this.getMinutes() + ":" + String.format("%02d", this.getSeconds()), 780, 50);
     }
     
     //Initialize the snake image icon
     public void initSnakeIcon(Graphics graphics){
-        if(movement == 0){
+        if(movement == false){
             //initial will be right mouth
-            snakeImage = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\rightmouth.png");
+            snakeImage = new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\rightmouth.png");
             snakeImage.paintIcon(this, graphics, snakeXLength[0], snakeYLength[0]);
         }
 
@@ -146,70 +262,141 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             
             if(i == 0 && direction == 'd'){
                 //right mouth
-                snakeImage = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\rightmouth.png");
+                snakeImage = new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\rightmouth.png");
                 snakeImage.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
             if(i == 0 && direction == 'a'){
                 //left mouth
-                snakeImage = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\leftmouth.png");
+                snakeImage = new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\leftmouth.png");
                 snakeImage.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
             if(i == 0 && direction == 'w'){
                 //up mouth
-                snakeImage = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\upmouth.png");
+                snakeImage = new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\upmouth.png");
                 snakeImage.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
             if(i == 0 && direction == 's'){
                 //down mouth
-                snakeImage = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\downmouth.png");
+                snakeImage = new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\downmouth.png");
                 snakeImage.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
             
             //start draw the snake body
             if(i != 0){
-                snakeImage = new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\snakeimage.png");
+                snakeImage = new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\snakeimage.png");
                 snakeImage.paintIcon(this, graphics, snakeXLength[i], snakeYLength[i]);
             }
         }
     }
     
-    //Initialize the food position
+    //Initialize the foodPosition position
     public void initFoodPosition(Graphics graphics){
+
+        if(totalFood < TOTAL_FOOD){
+            foodPosition.setFoodImage(new ImageIcon(System.getProperty("user.dir") + "\\src\\assets\\strawberry.png"));
         
-        food.setFoodImage(new ImageIcon("C:\\Users\\User\\Desktop\\SnakeGame\\src\\assets\\strawberry.png"));
-        
-        if((foodXPos[food.getxPos()] == snakeXLength[0]) && (foodYPos[food.getyPos()] == snakeYLength[0])){
-            scores++;
-            lengthOfSnake++;
+            if((this.getFoodXPos()[foodPosition.getXPos()] == snakeXLength[0]) && (this.getFoodYPos()[foodPosition.getYPos()] == snakeYLength[0])){
+                scores++;
+                lengthOfSnake++;
+                totalFood++;
+                
+                //dequeue the first position after snake eat the food
+                foodQueue.dequeue();
+            }
+
+            foodPosition.getFoodImage().paintIcon(this, graphics, this.getFoodXPos()[foodPosition.getXPos()], this.getFoodYPos()[foodPosition.getYPos()]);
+
+            //getfront for the foodPosition after dequeue
+            foodPosition = foodQueue.getFront();
             
-            //update food position
-            food.setxPos(food.generateFoodPositionCoordinate(foodXPos.length));
-            food.setyPos(food.generateFoodPositionCoordinate(foodYPos.length));
+        }else{
+            totalFood++;
         }
-        
-        food.getFoodImage().paintIcon(this, graphics, foodXPos[food.getxPos()], foodYPos[food.getyPos()]);
     }
     
     //Game Over
     public void snakeGameOver(Graphics graphics){
-        //lose (head touch body)
+        //isLose (head touch tail)
         for(int i = 1; i < lengthOfSnake; i++){
             if((snakeXLength[i] == snakeXLength[0]) && (snakeYLength[i] == snakeYLength[0])){
                 direction = 'n';
-                
+
                 graphics.setColor(Color.WHITE);
                 graphics.setFont(new Font("arial", Font.BOLD, 50));
                 graphics.drawString("Game Over", 300, 300);
-                
+
                 graphics.setFont(new Font("arial", Font.BOLD, 20));
                 graphics.drawString("Space to RESTART", 350, 340);
+
+                graphics.setFont(new Font("arial", Font.BOLD, 18));
+                graphics.drawString("Esc to Main Menu", 360, 380);
                 
-                movement = 0;
+                movement = false;
                 scores = 0;
                 lengthOfSnake = 3;
-                lose = true;
+                
+                this.setIsLose(true);
             }
         }
+        
+        //Time's up
+        if(this.getMinutes() == 0 && this.getSeconds() == 0){
+            direction = 'n';
+            movement = false;
+            this.setIsLose(true); //to indicate the game finish
+            
+            graphics.setColor(Color.WHITE);
+            graphics.setFont(new Font("arial", Font.BOLD, 50));
+            graphics.drawString("Time's Up", 320, 300);
+            
+            graphics.setFont(new Font("arial", Font.BOLD, 20));
+            graphics.drawString("Space to RESTART", 350, 340);
+
+            graphics.setFont(new Font("arial", Font.BOLD, 18));
+            graphics.drawString("Esc to Main Menu", 360, 380);
+        }
+        
+        //Food Finish
+        if(totalFood > TOTAL_FOOD){
+            direction = 'n';
+            movement = false;
+            this.setIsLose(true); //to indicate the game finish
+            
+            graphics.setColor(Color.WHITE);
+            graphics.setFont(new Font("arial", Font.BOLD, 50));
+            graphics.drawString("Game Completed", 230, 300);
+            
+            graphics.setFont(new Font("arial", Font.BOLD, 20));
+            graphics.drawString("Space to RESTART", 350, 340);
+
+            graphics.setFont(new Font("arial", Font.BOLD, 18));
+            graphics.drawString("Esc to Main Menu", 360, 380);
+        }
+        
+    }
+    
+    public void initSnakeTime(int minutes){
+        this.setMinutes(minutes);
+        this.setSeconds(0);
+    }
+    
+    //Timer for the snake game
+    public void snakeTime(){
+        snakeLife = new Timer(1000, new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                if(movement != false){
+                    if(seconds == 0){
+                        minutes--;
+                        seconds = 59;
+                    }else{
+                        seconds--;
+                    }
+                }
+            }
+        });
     }
     
     @Override
@@ -220,9 +407,9 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     @Override
     public void keyPressed(KeyEvent e) {
         
-        if(lose == false){
+        if(this.getIsLose() == false){
             if(e.getKeyCode() == KeyEvent.VK_RIGHT){
-                movement++;
+                movement = true;
                 
                 if(direction != 'a'){
                     
@@ -230,8 +417,8 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
                 }
             }
 
-            if(e.getKeyCode() == KeyEvent.VK_LEFT && movement != 0){
-                movement++;
+            if(e.getKeyCode() == KeyEvent.VK_LEFT && movement == true){
+                movement = true;
                 
                 if(direction != 'd'){
                     
@@ -240,7 +427,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             }
 
             if(e.getKeyCode() == KeyEvent.VK_UP){
-                movement++;
+                movement = true;
                 
                 if(direction != 's'){
                     
@@ -250,7 +437,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             }
 
             if(e.getKeyCode() == KeyEvent.VK_DOWN){
-                movement++;
+                movement = true;
                 
                 if(direction != 'w'){
                     
@@ -260,10 +447,15 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             }
         }
         else if(e.getKeyCode() == KeyEvent.VK_SPACE){
-            movement = 0;
+            movement = false;
             scores = 0;
             lengthOfSnake = 3;
-            lose = false;
+            this.setMinutes(1);
+            this.setIsLose(false);
+            repaint();
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+            this.setIsExit(true);
             repaint();
         }
 
@@ -276,7 +468,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        timer.start();
+        snakeSpeed.start();
         
         if(direction == 'd'){
             for(int i = lengthOfSnake - 1; i >= 0; i--){
