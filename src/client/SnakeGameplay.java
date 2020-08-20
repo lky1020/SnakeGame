@@ -156,13 +156,13 @@ public class SnakeGameplay extends javax.swing.JFrame {
         Leaderboard leaderboard = new Leaderboard();
         leaderboard.saveLeaderboardDataToFile(leaderBoardList);*/
         
-        Leaderboard leaderboard = new Leaderboard();
-        ListInterface<Leaderboard> leaderBoardList = leaderboard.readLeaderboardDataFromFile();
+        /*Leaderboard leaderboard = new Leaderboard();
+        ListInterface<Leaderboard> leaderBoardList = leaderboard.readLeaderboardDataFromFile();*/
         /*System.out.println(leaderBoardList.getEntry(1));
         System.out.println(leaderBoardList.getEntry(2));
         System.out.println(leaderBoardList.getEntry(3));*/
 
-        JPanel leaderboardLevelPanel = new JPanel();
+        /*JPanel leaderboardLevelPanel = new JPanel();
         leaderboardLevelPanel.add(new JLabel("Please Choose the Game's Level: "));
         
         int leaderboardResult = JOptionPane.showOptionDialog(null, leaderboardLevelPanel, "Game Level",
@@ -218,16 +218,17 @@ public class SnakeGameplay extends javax.swing.JFrame {
         
         leaderboardPanel.add(scrollPane, BorderLayout.SOUTH);
         JOptionPane.showMessageDialog(null, leaderboardPanel, "Leaderboard - Easy",  
-                                       JOptionPane.INFORMATION_MESSAGE);
+                                       JOptionPane.INFORMATION_MESSAGE);*/
     }//GEN-LAST:event_leaderboardButtonActionPerformed
 
     public static String getLevelTitle(int leaderboardLevelPanel){
-        if(leaderboardLevelPanel == 1){
-            return "Leaderboard - Easy";
-        }else if(leaderboardLevelPanel == 2){
-            return "Leaderboard - Normal";
-        }else{
-            return "Leaderboard - Hard";
+        switch (leaderboardLevelPanel) {
+            case 1:
+                return "Leaderboard - Easy";
+            case 2:
+                return "Leaderboard - Normal";
+            default:
+                return "Leaderboard - Hard";
         }
     }
     

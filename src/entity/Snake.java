@@ -493,7 +493,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             this.setMinutes(level.getPlayTime());
             
             //Generate All Food and queue it
-            foodQueue.clear();  //clea previous foodQueue
+            foodQueue.clear();  //clear previous foodQueue
             this.generateTotalFood();
         
             this.setIsLose(false);
