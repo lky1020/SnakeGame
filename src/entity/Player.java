@@ -61,6 +61,7 @@ public class Player implements Comparable<Player>, Serializable{
     
     @Override
     public String toString(){
-        return String.format("%4d", this.getId()) + " " + this.getName() + " " + this.level + " " + String.format("%5d", this.getScore());
+        return this.getId() + "\t" + this.getName() + "\t" + 
+               this.getLevel() + "\t" + String.format("%03d", this.getScore());
     }
 }

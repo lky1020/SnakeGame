@@ -7,11 +7,8 @@ package client;
 
 import adt.*;
 import entity.*;
-import java.awt.Color;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import java.awt.*;
+import javax.swing.*;
 
 /**
  *
@@ -19,6 +16,8 @@ import javax.swing.JPanel;
  */
 public class SnakeGameplay extends javax.swing.JFrame {
 
+    private static final Object[] GAME_LEVEL = {"Easy", "Normal", "Hard"};
+    
     /**
      * Creates new form SnakeGameplay
      */
@@ -94,15 +93,13 @@ public class SnakeGameplay extends javax.swing.JFrame {
 
     private void playGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playGameButtonActionPerformed
         // TODO add your handling code here:
-        //Get Game Level
-        Object[] gameLevel = {"Easy", "Normal", "Hard"};
-        
+
         JPanel gameLevelPanel = new JPanel();
         gameLevelPanel.add(new JLabel("Please Choose the Game's Level: "));
         
         int gameLevelResult = JOptionPane.showOptionDialog(null, gameLevelPanel, "Game Level",
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-                null, gameLevel, null);
+                null, GAME_LEVEL, null);
         
         //Only able play game after player choose game level
         if(gameLevelResult == 0 || gameLevelResult == 1 || gameLevelResult == 2){
@@ -130,9 +127,110 @@ public class SnakeGameplay extends javax.swing.JFrame {
 
     private void leaderboardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leaderboardButtonActionPerformed
         // TODO add your handling code here:
+        /*SortedListInterface<Player> playerSortedList1 = new SortedArrayList<>();
+        playerSortedList1.add(new Player(1001, "easy1", new GameLevel(1), 25));
+        playerSortedList1.add(new Player(1002, "easy2", new GameLevel(1), 10));
+        playerSortedList1.add(new Player(1003, "easy3", new GameLevel(1), 28));
+        playerSortedList1.add(new Player(1004, "easy4", new GameLevel(1), 6));
+        playerSortedList1.add(new Player(1005, "easy5", new GameLevel(1), 2));
         
+        SortedListInterface<Player> playerSortedList2 = new SortedArrayList<>();
+        playerSortedList2.add(new Player(1001, "normal1", new GameLevel(2), 20));
+        playerSortedList2.add(new Player(1002, "normal2", new GameLevel(2), 7));
+        playerSortedList2.add(new Player(1003, "normal3", new GameLevel(2), 8));
+        playerSortedList2.add(new Player(1004, "normal4", new GameLevel(2), 15));
+        playerSortedList2.add(new Player(1005, "normal5", new GameLevel(2), 3));
+        
+        SortedListInterface<Player> playerSortedList3 = new SortedArrayList<>();
+        playerSortedList3.add(new Player(1001, "hard1", new GameLevel(3), 34));
+        playerSortedList3.add(new Player(1002, "hard2", new GameLevel(3), 10));
+        playerSortedList3.add(new Player(1003, "hard3", new GameLevel(3), 21));
+        playerSortedList3.add(new Player(1004, "hard4", new GameLevel(3), 25));
+        playerSortedList3.add(new Player(1005, "hard5", new GameLevel(3), 7));
+        
+        ListInterface<Leaderboard> leaderBoardList = new ArrayList<>();
+        leaderBoardList.add(new Leaderboard("Easy", playerSortedList1));
+        leaderBoardList.add(new Leaderboard("Normal", playerSortedList2));
+        leaderBoardList.add(new Leaderboard("Hard", playerSortedList3));
+        
+        Leaderboard leaderboard = new Leaderboard();
+        leaderboard.saveLeaderboardDataToFile(leaderBoardList);*/
+        
+        Leaderboard leaderboard = new Leaderboard();
+        ListInterface<Leaderboard> leaderBoardList = leaderboard.readLeaderboardDataFromFile();
+        /*System.out.println(leaderBoardList.getEntry(1));
+        System.out.println(leaderBoardList.getEntry(2));
+        System.out.println(leaderBoardList.getEntry(3));*/
+
+        JPanel leaderboardLevelPanel = new JPanel();
+        leaderboardLevelPanel.add(new JLabel("Please Choose the Game's Level: "));
+        
+        int leaderboardResult = JOptionPane.showOptionDialog(null, leaderboardLevelPanel, "Game Level",
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+                null, GAME_LEVEL, null);
+        
+        leaderboardResult += 1;//to let the result start from 1 - 3
+        
+        JPanel leaderboardPanel = new JPanel();
+        leaderboardPanel.setLayout(new BorderLayout(20, 20));
+        
+        //Title
+        JLabel leaderboardTitleLabel = new JLabel(this.getLevelTitle(leaderboardResult));
+        leaderboardTitleLabel.setFont(new java.awt.Font(".Heiti J", 1, 24));
+        leaderboardTitleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        
+        leaderboardPanel.add(leaderboardTitleLabel, BorderLayout.NORTH);
+
+        
+        //Variable Name
+        JTextField varibaleTextField = new JTextField();
+        String variable = String.format("%8s", "ID") +  String.format("%10s", "Name") + String.format("%11s", "Level") + String.format("%12s", "Score");
+        varibaleTextField.setText(variable);
+        varibaleTextField.setFont(new java.awt.Font(".Heiti J", 1, 16));
+        varibaleTextField.setOpaque(false);
+        varibaleTextField.setBackground(new Color(0, 0, 0, 0));
+        varibaleTextField.setEditable(false);
+        varibaleTextField.setBorder(null);
+
+        leaderboardPanel.add(varibaleTextField, BorderLayout.CENTER);
+        
+        //SortedList Player (TextArea)
+        JTextArea leaderboardTextArea = new JTextArea();
+        leaderboardTextArea.setOpaque(false);
+        leaderboardTextArea.setBackground(new Color(0, 0, 0, 0));
+        leaderboardTextArea.setEditable(false);
+
+        String str = "";
+        
+        //the sortedList is start from 1
+        for(int i = 1; i <= leaderBoardList.getEntry(leaderboardResult).getPlayerSortedList().getLength(); i++){
+            str += String.format("%02d", i) + ". " + leaderBoardList.getEntry(leaderboardResult).getPlayerSortedList().getEntry(i) + "\n";
+
+        }
+
+        leaderboardTextArea.setText(str);
+        leaderboardTextArea.setFont(new java.awt.Font(".Heiti J", 0, 14));
+        
+        //Add leaderboardTextArea to scrollPane
+        JScrollPane scrollPane = new JScrollPane(leaderboardTextArea);  
+        scrollPane.setPreferredSize( new Dimension( 400, 100 ) );
+        scrollPane.setBorder(null);
+        
+        leaderboardPanel.add(scrollPane, BorderLayout.SOUTH);
+        JOptionPane.showMessageDialog(null, leaderboardPanel, "Leaderboard - Easy",  
+                                       JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_leaderboardButtonActionPerformed
 
+    public static String getLevelTitle(int leaderboardLevelPanel){
+        if(leaderboardLevelPanel == 1){
+            return "Leaderboard - Easy";
+        }else if(leaderboardLevelPanel == 2){
+            return "Leaderboard - Normal";
+        }else{
+            return "Leaderboard - Hard";
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
