@@ -1,11 +1,13 @@
 
 package adt;
 
+import java.io.Serializable;
+
 /**
  *
  * @author KXian
  */
-public class ArrayList<T> implements ListInterface<T> {
+public class ArrayList<T> implements ListInterface<T>, Serializable {
     
     private T[] array;
     private int length;

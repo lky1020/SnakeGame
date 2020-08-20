@@ -5,6 +5,7 @@
  */
 package client;
 
+import adt.*;
 import entity.*;
 import java.awt.Color;
 import javax.swing.JFrame;
@@ -55,6 +56,11 @@ public class SnakeGameplay extends javax.swing.JFrame {
 
         leaderboardButton.setFont(new java.awt.Font(".Heiti J", 1, 18)); // NOI18N
         leaderboardButton.setText("Leaderboard");
+        leaderboardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                leaderboardButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -121,6 +127,11 @@ public class SnakeGameplay extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_playGameButtonActionPerformed
+
+    private void leaderboardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leaderboardButtonActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_leaderboardButtonActionPerformed
 
     /**
      * @param args the command line arguments

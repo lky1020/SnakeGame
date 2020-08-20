@@ -3,8 +3,9 @@ package entity;
 
 import javax.swing.ImageIcon;
 import adt.*;
+import java.io.Serializable;
 
-public class GameLevel {
+public class GameLevel implements Serializable{
     // GameLevel Setting : 1 - Easy, 2 - Normal, 3 - Hard
     private int levelID;
     private final int easyTime = 3;
@@ -35,6 +36,18 @@ public class GameLevel {
         }
         else{
             return easyTime;
+        }
+    }
+    
+    public String getLevelType(){
+        if(levelID == 2){
+            return "Normal";
+        }
+        else if(levelID == 3){
+            return "Hard";
+        }
+        else{
+            return "Easy";
         }
     }
     
@@ -102,5 +115,11 @@ public class GameLevel {
             default:
                 break;
         }
+    }
+    
+    @Override
+    public String toString(){
+        //Will return levelType only for the Leaderboard
+        return this.getLevelType() + " ";
     }
 }
