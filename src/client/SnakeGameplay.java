@@ -98,7 +98,7 @@ public class SnakeGameplay extends javax.swing.JFrame {
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
                 null, gameLevel, null);
         
-        //Only able play gae when player choose game level
+        //Only able play game after player choose game level
         if(gameLevelResult == 0 || gameLevelResult == 1 || gameLevelResult == 2){
             this.dispose();
 
