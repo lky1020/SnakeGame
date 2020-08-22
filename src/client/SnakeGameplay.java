@@ -17,12 +17,61 @@ import javax.swing.*;
 public class SnakeGameplay extends javax.swing.JFrame {
 
     private static final Object[] GAME_LEVEL = {"Easy", "Normal", "Hard"};
+    private Leaderboard leaderboard = new Leaderboard();
+    private ListInterface<Leaderboard> leaderBoardList;
     
     /**
      * Creates new form SnakeGameplay
      */
     public SnakeGameplay() {
         initComponents();
+        
+        //read data from file
+        leaderBoardList = leaderboard.readLeaderboardDataFromFile();
+    }
+    
+    public SnakeGameplay(Player player) {
+        initComponents();
+        
+        //read data from file
+        leaderBoardList = leaderboard.readLeaderboardDataFromFile();
+        
+        //refresh current game status of play if player score new high score
+        player.getCurrentGameStatus();
+
+        int level = 0;
+        int location = 0;
+        //search the player info (start from 1)
+        for(int i = 1; i <= leaderBoardList.getLength(); i++){
+
+            //check the sortedList player for the player (start from 1)
+            for(int j = 1; j <= leaderBoardList.getEntry(i).getPlayerSortedList().getLength(); j++){
+
+                if(leaderBoardList.getEntry(i).getPlayerSortedList().getEntry(j).getId() == player.getId()){
+                    level = i;
+                    location = j;
+                }
+            }
+        }
+        
+        //remove existing player record
+        if(level != 0 && location != 0){
+            Player oldPlayerRecord = leaderBoardList.getEntry(level).getPlayerSortedList().getEntry(location);
+            
+            //remove existing player record
+            leaderBoardList.getEntry(level).getPlayerSortedList().remove(oldPlayerRecord);
+        }
+        
+        
+        //add the new player record to leaderboard(easy, normal, hard)
+        for(int i = 1; i <= leaderBoardList.getLength(); i++){
+            if(leaderBoardList.getEntry(i).getRankType().compareTo(player.getCurrentLevel().getLevelType()) == 0){
+                leaderBoardList.getEntry(i).getPlayerSortedList().add(player);
+            }
+        }
+        
+        //save the reord to file
+        leaderboard.saveLeaderboardDataToFile(leaderBoardList);
     }
 
     /**
@@ -37,6 +86,7 @@ public class SnakeGameplay extends javax.swing.JFrame {
         snakeGameplayLabel = new javax.swing.JLabel();
         playGameButton = new javax.swing.JButton();
         leaderboardButton = new javax.swing.JButton();
+        historyButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Main Menu");
@@ -61,6 +111,14 @@ public class SnakeGameplay extends javax.swing.JFrame {
             }
         });
 
+        historyButton.setFont(new java.awt.Font(".Heiti J", 1, 18)); // NOI18N
+        historyButton.setText("History");
+        historyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                historyButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -69,12 +127,15 @@ public class SnakeGameplay extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(109, 109, 109)
-                        .addComponent(leaderboardButton, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(128, 128, 128)
-                        .addComponent(playGameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(122, Short.MAX_VALUE))
+                        .addComponent(playGameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(146, 146, 146)
+                        .addComponent(historyButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(111, 111, 111)
+                        .addComponent(leaderboardButton, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(120, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -83,8 +144,10 @@ public class SnakeGameplay extends javax.swing.JFrame {
                 .addGap(50, 50, 50)
                 .addComponent(playGameButton)
                 .addGap(18, 18, 18)
+                .addComponent(historyButton)
+                .addGap(18, 18, 18)
                 .addComponent(leaderboardButton)
-                .addGap(0, 76, Short.MAX_VALUE))
+                .addContainerGap(43, Short.MAX_VALUE))
         );
 
         pack();
@@ -93,76 +156,198 @@ public class SnakeGameplay extends javax.swing.JFrame {
 
     private void playGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playGameButtonActionPerformed
         // TODO add your handling code here:
-
         JPanel gameLevelPanel = new JPanel();
-        gameLevelPanel.add(new JLabel("Please Choose the Game's Level: "));
+        gameLevelPanel.setLayout(new BorderLayout(20, 20));
+        gameLevelPanel.add(new JLabel("Please Enter Player Name (Max 7 Character): "), BorderLayout.CENTER);
+        
+        //Player Name
+        JTextField playerIDTextField = new JTextField(10);
+        gameLevelPanel.add(playerIDTextField, BorderLayout.EAST);
+
+        //Game Level
+        gameLevelPanel.add(new JLabel("Please Choose Game Level: "), BorderLayout.SOUTH);
         
         int gameLevelResult = JOptionPane.showOptionDialog(null, gameLevelPanel, "Game Level",
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
                 null, GAME_LEVEL, null);
         
-        //Only able play game after player choose game level
-        if(gameLevelResult == 0 || gameLevelResult == 1 || gameLevelResult == 2){
-            this.dispose();
+        //check player name
+        if(playerIDTextField.getText().equals("") || playerIDTextField.getText().length() > 7){
+            
+            JOptionPane.showMessageDialog(null, "Please Enter Valid Player Name!!!", "Invalid Player Name", JOptionPane.ERROR_MESSAGE);
+            
+        }else{
+            
+            int level = 0;
+            int location = 0;
+            int startId = 1001; //to get the start id for the tempID
+            
+            //search the player info to prevent create duplicate player (start from 1)
+            for(int i = 1; i <= leaderBoardList.getLength(); i++){
+                
+                //check the sortedList player for the player (start from 1)
+                for(int j = 1; j <= leaderBoardList.getEntry(i).getPlayerSortedList().getLength(); j++){
+                    
+                    startId++;
+                    
+                    if(leaderBoardList.getEntry(i).getPlayerSortedList().getEntry(j).getName().equals(playerIDTextField.getText())){
+                        level = i;
+                        location = j;
+                    }
+                }
+            }
+            
+            //Player that will pass to the 
+            Player player = null;
+            player.setIdTemp(startId);
+            //create new player record if no exist in leaderboard
+            if(level == 0 && location == 0){
+                
+                player = new Player(playerIDTextField.getText());
+                
+            }else{
+                
+                player = leaderBoardList.getEntry(level).getPlayerSortedList().getEntry(location);
+                
+            }
+            
+            //Only able play game after player choose game level
+            if(gameLevelResult == 0 || gameLevelResult == 1 || gameLevelResult == 2){
+                this.dispose();
 
-            int width = 925;
-            int height = 720;
+                int width = 925;
+                int height = 720;
 
-            JFrame jframeSnake = new JFrame();
+                JFrame jframeSnake = new JFrame();
 
-            jframeSnake.setTitle("Snake Game");
-            jframeSnake.setBounds(10, 10, width, height);
-            jframeSnake.setResizable(false);
-            jframeSnake.setVisible(true);
-            jframeSnake.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            jframeSnake.setLocationRelativeTo(null);
-            jframeSnake.getContentPane().setBackground(Color.DARK_GRAY);
+                jframeSnake.setTitle("Snake Game");
+                jframeSnake.setBounds(10, 10, width, height);
+                jframeSnake.setResizable(false);
+                jframeSnake.setVisible(true);
+                jframeSnake.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                jframeSnake.setLocationRelativeTo(null);
+                jframeSnake.getContentPane().setBackground(Color.DARK_GRAY);
 
-            Snake gameplay = new Snake(width, height, gameLevelResult + 1);
+                Snake gameplay = new Snake(width, height, gameLevelResult + 1, player);
 
-            jframeSnake.add(gameplay);
+                jframeSnake.add(gameplay);
+            }
         }
 
     }//GEN-LAST:event_playGameButtonActionPerformed
 
     private void leaderboardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leaderboardButtonActionPerformed
         // TODO add your handling code here:
-        /*SortedListInterface<Player> playerSortedList1 = new SortedArrayList<>();
-        playerSortedList1.add(new Player(1001, "easy1", new GameLevel(1), 25));
-        playerSortedList1.add(new Player(1002, "easy2", new GameLevel(1), 10));
-        playerSortedList1.add(new Player(1003, "easy3", new GameLevel(1), 28));
-        playerSortedList1.add(new Player(1004, "easy4", new GameLevel(1), 6));
-        playerSortedList1.add(new Player(1005, "easy5", new GameLevel(1), 2));
+        /*SortedListInterface<Player> playerSortedListEasy = new SortedArrayList<>();
+
+        //hardcode - Easy
+        ListInterfaceWithIterator<GameHistory> gameHistory1 = new LinkedListWithIterator<>();
+        gameHistory1.add(new GameHistory(new GameLevel(1), 6));
+        gameHistory1.add(new GameHistory(new GameLevel(2), 10));
+        gameHistory1.add(new GameHistory(new GameLevel(3), 23));
+        gameHistory1.add(new GameHistory(new GameLevel(2), 25));
+        gameHistory1.add(new GameHistory(new GameLevel(1), 28));
+        gameHistory1.add(new GameHistory(new GameLevel(3), 3));
+
+        playerSortedListEasy.add(new Player("easy1", gameHistory1));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory2 = new LinkedListWithIterator<>();
+        gameHistory2.add(new GameHistory(new GameLevel(2), 6));
+        gameHistory2.add(new GameHistory(new GameLevel(1), 25));
+        gameHistory2.add(new GameHistory(new GameLevel(3), 5));
+        playerSortedListEasy.add(new Player("easy2", gameHistory2));
         
-        SortedListInterface<Player> playerSortedList2 = new SortedArrayList<>();
-        playerSortedList2.add(new Player(1001, "normal1", new GameLevel(2), 20));
-        playerSortedList2.add(new Player(1002, "normal2", new GameLevel(2), 7));
-        playerSortedList2.add(new Player(1003, "normal3", new GameLevel(2), 8));
-        playerSortedList2.add(new Player(1004, "normal4", new GameLevel(2), 15));
-        playerSortedList2.add(new Player(1005, "normal5", new GameLevel(2), 3));
+        ListInterfaceWithIterator<GameHistory> gameHistory3 = new LinkedListWithIterator<>();
+        gameHistory3.add(new GameHistory(new GameLevel(1), 30));
+        gameHistory3.add(new GameHistory(new GameLevel(2), 10));
+        gameHistory3.add(new GameHistory(new GameLevel(3), 23));
+        playerSortedListEasy.add(new Player("easy3", gameHistory3));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory4 = new LinkedListWithIterator<>();
+        gameHistory4.add(new GameHistory(new GameLevel(2), 6));
+        gameHistory4.add(new GameHistory(new GameLevel(1), 29));
+        gameHistory4.add(new GameHistory(new GameLevel(3), 3));
+        playerSortedListEasy.add(new Player("easy4", gameHistory4));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory5 = new LinkedListWithIterator<>();
+        gameHistory5.add(new GameHistory(new GameLevel(1), 6));
+        gameHistory5.add(new GameHistory(new GameLevel(2), 5));
+        gameHistory5.add(new GameHistory(new GameLevel(3), 4));
+        playerSortedListEasy.add(new Player("easy5", gameHistory5));
         
-        SortedListInterface<Player> playerSortedList3 = new SortedArrayList<>();
-        playerSortedList3.add(new Player(1001, "hard1", new GameLevel(3), 34));
-        playerSortedList3.add(new Player(1002, "hard2", new GameLevel(3), 10));
-        playerSortedList3.add(new Player(1003, "hard3", new GameLevel(3), 21));
-        playerSortedList3.add(new Player(1004, "hard4", new GameLevel(3), 25));
-        playerSortedList3.add(new Player(1005, "hard5", new GameLevel(3), 7));
-        
+        //hardcode - Normal
+        SortedListInterface<Player> playerSortedListNormal = new SortedArrayList<>();
+
+        ListInterfaceWithIterator<GameHistory> gameHistory6 = new LinkedListWithIterator<>();
+        gameHistory6.add(new GameHistory(new GameLevel(2), 30));
+        playerSortedListNormal.add(new Player("norm1", gameHistory6));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory7 = new LinkedListWithIterator<>();
+        gameHistory7.add(new GameHistory(new GameLevel(2), 37));
+        gameHistory7.add(new GameHistory(new GameLevel(1), 25));
+        gameHistory7.add(new GameHistory(new GameLevel(3), 5));
+        playerSortedListNormal.add(new Player("norm2", gameHistory7));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory8 = new LinkedListWithIterator<>();
+        gameHistory8.add(new GameHistory(new GameLevel(1), 15));
+        gameHistory8.add(new GameHistory(new GameLevel(2), 16));
+        gameHistory8.add(new GameHistory(new GameLevel(3), 12));
+        playerSortedListNormal.add(new Player("norm3", gameHistory8));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory9 = new LinkedListWithIterator<>();
+        gameHistory9.add(new GameHistory(new GameLevel(2), 26));
+        gameHistory9.add(new GameHistory(new GameLevel(1), 21));
+        gameHistory9.add(new GameHistory(new GameLevel(3), 3));
+        playerSortedListNormal.add(new Player("norm4", gameHistory9));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory10 = new LinkedListWithIterator<>();
+        gameHistory10.add(new GameHistory(new GameLevel(2), 5));
+        playerSortedListNormal.add(new Player("norm5", gameHistory10));
+
+        //hardcode - Hard
+        SortedListInterface<Player> playerSortedListHard = new SortedArrayList<>();
+
+        ListInterfaceWithIterator<GameHistory> gameHistory11 = new LinkedListWithIterator<>();
+        gameHistory11.add(new GameHistory(new GameLevel(3), 30));
+        playerSortedListHard.add(new Player("hard1", gameHistory11));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory12 = new LinkedListWithIterator<>();
+        gameHistory12.add(new GameHistory(new GameLevel(2), 5));
+        gameHistory12.add(new GameHistory(new GameLevel(1), 10));
+        gameHistory12.add(new GameHistory(new GameLevel(3), 12));
+        playerSortedListHard.add(new Player("hard2", gameHistory12));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory13 = new LinkedListWithIterator<>();
+        gameHistory13.add(new GameHistory(new GameLevel(1), 15));
+        gameHistory13.add(new GameHistory(new GameLevel(2), 16));
+        gameHistory13.add(new GameHistory(new GameLevel(3), 17));
+        playerSortedListHard.add(new Player("hard3", gameHistory13));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory14 = new LinkedListWithIterator<>();
+        gameHistory14.add(new GameHistory(new GameLevel(2), 6));
+        gameHistory14.add(new GameHistory(new GameLevel(1), 10));
+        gameHistory14.add(new GameHistory(new GameLevel(3), 16));
+        playerSortedListHard.add(new Player("hard4", gameHistory14));
+
+        ListInterfaceWithIterator<GameHistory> gameHistory15 = new LinkedListWithIterator<>();
+        gameHistory15.add(new GameHistory(new GameLevel(3), 5));
+        playerSortedListHard.add(new Player("hard5", gameHistory15));
+
+        //Printing Leaderboard
         ListInterface<Leaderboard> leaderBoardList = new ArrayList<>();
-        leaderBoardList.add(new Leaderboard("Easy", playerSortedList1));
-        leaderBoardList.add(new Leaderboard("Normal", playerSortedList2));
-        leaderBoardList.add(new Leaderboard("Hard", playerSortedList3));
+        leaderBoardList.add(new Leaderboard("Easy", playerSortedListEasy));
+        leaderBoardList.add(new Leaderboard("Normal", playerSortedListNormal));
+        leaderBoardList.add(new Leaderboard("Hard", playerSortedListHard));
+
+        System.out.println(leaderBoardList.getEntry(1));
+        System.out.println(leaderBoardList.getEntry(2));
+        System.out.println(leaderBoardList.getEntry(3));
         
         Leaderboard leaderboard = new Leaderboard();
         leaderboard.saveLeaderboardDataToFile(leaderBoardList);*/
         
-        /*Leaderboard leaderboard = new Leaderboard();
-        ListInterface<Leaderboard> leaderBoardList = leaderboard.readLeaderboardDataFromFile();*/
-        /*System.out.println(leaderBoardList.getEntry(1));
-        System.out.println(leaderBoardList.getEntry(2));
-        System.out.println(leaderBoardList.getEntry(3));*/
-
-        /*JPanel leaderboardLevelPanel = new JPanel();
+        //Display Leaderboard
+        JPanel leaderboardLevelPanel = new JPanel();
         leaderboardLevelPanel.add(new JLabel("Please Choose the Game's Level: "));
         
         int leaderboardResult = JOptionPane.showOptionDialog(null, leaderboardLevelPanel, "Game Level",
@@ -181,7 +366,6 @@ public class SnakeGameplay extends javax.swing.JFrame {
         
         leaderboardPanel.add(leaderboardTitleLabel, BorderLayout.NORTH);
 
-        
         //Variable Name
         JTextField varibaleTextField = new JTextField();
         String variable = String.format("%8s", "ID") +  String.format("%10s", "Name") + String.format("%11s", "Level") + String.format("%12s", "Score");
@@ -217,9 +401,112 @@ public class SnakeGameplay extends javax.swing.JFrame {
         scrollPane.setBorder(null);
         
         leaderboardPanel.add(scrollPane, BorderLayout.SOUTH);
-        JOptionPane.showMessageDialog(null, leaderboardPanel, "Leaderboard - Easy",  
-                                       JOptionPane.INFORMATION_MESSAGE);*/
+        JOptionPane.showMessageDialog(null, leaderboardPanel, this.getLevelTitle(leaderboardResult),  
+                                       JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_leaderboardButtonActionPerformed
+
+    private void historyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_historyButtonActionPerformed
+        // TODO add your handling code here:
+        //Display panel to get the playerID and display its history
+        JPanel historyPanel = new JPanel();
+        historyPanel.add(new JLabel("Please Enter Player's Name: "));
+        
+        JTextField playerNameTextField = new JTextField(10);
+        historyPanel.add(playerNameTextField);
+
+        int historyResult = JOptionPane.showOptionDialog(null, historyPanel, "Player's History",
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+        
+        //Yes
+        if(historyResult == 0 && playerNameTextField.getText().length() != 0 && playerNameTextField.getText().length() <= 7){
+            
+            String playerName = playerNameTextField.getText();
+            
+            int level = 0;
+            int location = 0;
+            
+            //search the player info (start from 1)
+            for(int i = 1; i <= leaderBoardList.getLength(); i++){
+                
+                //check the sortedList player for the player (start from 1)
+                for(int j = 1; j <= leaderBoardList.getEntry(i).getPlayerSortedList().getLength(); j++){
+                    
+                    if(leaderBoardList.getEntry(i).getPlayerSortedList().getEntry(j).getName().compareTo(playerName) == 0){
+                        level = i;
+                        location = j;
+                    }
+                }
+            }
+            
+            //Exist Player
+            if(level != 0 && location != 0){
+                //get the game history of the player
+                ListInterfaceWithIterator<GameHistory> gameHistory = leaderBoardList.getEntry(level).getPlayerSortedList().getEntry(location).getGameHistory();
+
+                //Display Game History
+                JPanel gameHistoryPanel = new JPanel();
+                gameHistoryPanel.setLayout(new BorderLayout(20, 20));
+
+                //Title
+                JLabel gameHistoryLabel = new JLabel("Game History");
+                gameHistoryLabel.setFont(new java.awt.Font(".Heiti J", 1, 24));
+                gameHistoryLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+                gameHistoryPanel.add(gameHistoryLabel, BorderLayout.NORTH);
+
+                //Variable Name
+                JTextField varibaleTextField = new JTextField();
+                String variable = " " + String.format("%-13s", "ID") +  String.format("%-20s", "Name") + String.format("%-18s", "Date") + String.format("%-11s", "Level") + String.format("%-12s", "Score");
+                varibaleTextField.setText(variable);
+                varibaleTextField.setFont(new java.awt.Font(".Heiti J", 1, 16));
+                varibaleTextField.setOpaque(false);
+                varibaleTextField.setBackground(new Color(0, 0, 0, 0));
+                varibaleTextField.setEditable(false);
+                varibaleTextField.setBorder(null);
+
+                gameHistoryPanel.add(varibaleTextField, BorderLayout.CENTER);
+
+                //List Game History (TextArea)
+                JTextArea gameHistoryTextArea = new JTextArea();
+                gameHistoryTextArea.setOpaque(false);
+                gameHistoryTextArea.setBackground(new Color(0, 0, 0, 0));
+                gameHistoryTextArea.setEditable(false);
+
+                String str = leaderBoardList.getEntry(level).getPlayerSortedList().getEntry(location).getId() + "\t" + leaderBoardList.getEntry(level).getPlayerSortedList().getEntry(location).getName();
+
+                //the list is start from 1
+                for(int i = 1; i <= gameHistory.getLength(); i++){
+
+                    if(i == 1){
+                        str += "\t" + gameHistory.getEntry(i) + "\n";
+                    }else{
+                        str += "\t\t" + gameHistory.getEntry(i) + "\n";
+                    }
+                }
+
+                gameHistoryTextArea.setText(str);
+                gameHistoryTextArea.setFont(new java.awt.Font(".Heiti J", 0, 14));
+
+                //Add leaderboardTextArea to scrollPane
+                JScrollPane scrollPane = new JScrollPane(gameHistoryTextArea);  
+                scrollPane.setPreferredSize( new Dimension( 550, 150 ) );
+                scrollPane.setBorder(null);
+
+                gameHistoryPanel.add(scrollPane, BorderLayout.SOUTH);
+                JOptionPane.showMessageDialog(null, gameHistoryPanel, "Player",  
+                                               JOptionPane.INFORMATION_MESSAGE);
+                
+            }else{
+                JOptionPane.showMessageDialog(null, "Player Not Exist!!!", "Information", JOptionPane.INFORMATION_MESSAGE);
+            }
+            
+            
+        }else if(historyResult == 0 && playerNameTextField.getText().length() == 0 || playerNameTextField.getText().length() > 7 ){
+            
+            JOptionPane.showMessageDialog(null, "Please Enter Valid Player Name (Within 7 Characters)!!!", "Invalid Player ID", JOptionPane.ERROR_MESSAGE);
+            
+        }
+    }//GEN-LAST:event_historyButtonActionPerformed
 
     public static String getLevelTitle(int leaderboardLevelPanel){
         switch (leaderboardLevelPanel) {
@@ -268,6 +555,7 @@ public class SnakeGameplay extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton historyButton;
     private javax.swing.JButton leaderboardButton;
     private javax.swing.JButton playGameButton;
     private javax.swing.JLabel snakeGameplayLabel;

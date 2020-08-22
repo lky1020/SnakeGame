@@ -1,10 +1,11 @@
 
 package entity;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class GameHistory{
+public class GameHistory implements Serializable {
     private Date dateTime;
     private GameLevel level;
     private int score;
@@ -41,4 +42,9 @@ public class GameHistory{
         this.score = score;
     }
     
+    @Override
+    public String toString(){
+        return this.getDateTime() + "\t" + this.getLevel() +"\t" + String.format("%03d", this.getScore());
+
+    }
 }

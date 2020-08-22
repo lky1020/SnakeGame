@@ -5,13 +5,14 @@
  */
 package adt;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
  *
  * @author mador
  */
-public class LinkedListWithIterator<T> implements ListInterfaceWithIterator<T> {
+public class LinkedListWithIterator<T> implements ListInterfaceWithIterator<T>, Serializable {
 
   private Node firstNode; // reference to first node
   private int length;  	// number of entries in list
@@ -174,7 +175,7 @@ public class LinkedListWithIterator<T> implements ListInterfaceWithIterator<T> {
         return new ListIterator(firstNode);
     }
 
-  private class Node {
+  private class Node implements Serializable {
 
     private T data;
     private Node next;

@@ -3,22 +3,36 @@ package entity;
 
 import adt.*;
 import java.io.Serializable;
+import java.util.Iterator;
 
 public class Player implements Comparable<Player>, Serializable{
 
+    private static int idTemp = 1001;
     private int id;
     private String name;
     private GameLevel currentLevel;
-    private int highScore;
+    private int highScore = 0;
     private ListInterfaceWithIterator<GameHistory> gameHistory;
     
     public Player(){}
-    public Player(int id, String name, GameLevel currentLevel, int highScore, ListInterfaceWithIterator<GameHistory> gameHistory){
-        this.id = id;
+    public Player(String name){
+        this.id = idTemp++;
         this.name = name;
-        this.currentLevel = currentLevel;
-        this.highScore = highScore;
+    }
+    public Player(String name, ListInterfaceWithIterator<GameHistory> gameHistory){
+        this.id = idTemp++;
+        this.name = name;
         this.gameHistory = gameHistory;
+        
+        this.getCurrentGameStatus();
+    }
+
+    public static int getIdTemp() {
+        return idTemp;
+    }
+
+    public static void setIdTemp(int idTemp) {
+        Player.idTemp = idTemp;
     }
 
     public int getId() {
@@ -62,11 +76,16 @@ public class Player implements Comparable<Player>, Serializable{
     }
     
     //FUNCTION
-    //GENERATE SCORE AFTER EACH GAME
-    public void generateScore(int score){
-        this.gameHistory.add(new GameHistory(currentLevel, score)); //new GameHistory(score,lvl)
-        if(this.highScore < score)
-            this.highScore = score;
+    //Get Current Game Status to set the highSocre and currenLevel
+    public void getCurrentGameStatus(){
+        
+        //start from 1
+        for(int i = 1; i <= gameHistory.getLength(); i++){
+            if(gameHistory.getEntry(i).getScore() > this.gethighScore()){
+                this.currentLevel = gameHistory.getEntry(i).getLevel();
+                this.highScore = gameHistory.getEntry(i).getScore();
+            }
+        }
     }
     
     @Override
@@ -82,6 +101,6 @@ public class Player implements Comparable<Player>, Serializable{
     @Override
     public String toString(){
         return this.getId() + "\t" + this.getName() + "\t" + 
-               String.format("%03d", this.gethighScore());
+               this.getCurrentLevel() + "\t" + String.format("%03d", this.gethighScore());
     }
 }

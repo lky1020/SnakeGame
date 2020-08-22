@@ -26,7 +26,10 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     private int boardWidth;
     private int boardHeight;
     
-    //Player level
+    //Player
+    private Player player = null;
+    
+    //level
     int minutes;
     int seconds;
     Timer snakeLife;
@@ -65,12 +68,15 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     
     public Snake(){}
     
-    public Snake(int boardWidth, int boardHeight, int gameLevelResult){
+    public Snake(int boardWidth, int boardHeight, int gameLevelResult, Player player){
 
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
 
+        //Player
+        this.player = player;
+        
         //Level
         level.setLevel(gameLevelResult);//set the level of the game
         this.setMinutes(level.getPlayTime()); //only will use minutes after this
@@ -205,7 +211,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             graphics.dispose();
             
         }else{
-            SnakeGameplay snakeGameplay = new SnakeGameplay();
+            SnakeGameplay snakeGameplay = new SnakeGameplay(player);
             snakeGameplay.setVisible(true);
             JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
             topFrame.dispose();
@@ -363,10 +369,6 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             //Prevent snake move
             movement = false;
             
-            //initialize snake game
-            scores = 0;
-            lengthOfSnake = 3;
-
             //Inidcate Game Over of Game Finish (Food Finish || Time's Up || Game Over)
             this.setIsLose(true);
         }
@@ -490,7 +492,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             movement = false;
             scores = 0;
             lengthOfSnake = 3;
-            this.setMinutes(level.getPlayTime());
+            this.setMinutes(this.level.getPlayTime());
             
             //Generate All Food and queue it
             foodQueue.clear();  //clear previous foodQueue
@@ -500,6 +502,23 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             repaint();
         }
         else if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+            //Save the scores to the GameHistory to pass back to snakeGameplay.java
+            if(player.getGameHistory() != null){
+                
+                player.getGameHistory().add(new GameHistory(this.level, this.scores));
+                
+            }else{
+                
+                ListInterfaceWithIterator<GameHistory> gameHistory = new LinkedListWithIterator<>();
+                
+                gameHistory.add(new GameHistory(this.level, this.scores));
+                player.setGameHistory(gameHistory);
+                
+            }  
+            
+            scores = 0;
+            lengthOfSnake = 3;
+            
             this.setIsExit(true);
             repaint();
         }

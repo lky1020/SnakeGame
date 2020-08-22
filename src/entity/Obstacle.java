@@ -1,13 +1,14 @@
 
 package entity;
 
+import java.io.Serializable;
 import javax.swing.ImageIcon;
 
 /**
  *
  * @author KXian
  */
-public class Obstacle {
+public class Obstacle implements Serializable{
     
     // Variable for coordinate(x,y)
     private int posX;
