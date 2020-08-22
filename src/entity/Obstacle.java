@@ -1,4 +1,3 @@
-
 package entity;
 
 import java.io.Serializable;
@@ -8,26 +7,27 @@ import javax.swing.ImageIcon;
  *
  * @author KXian
  */
-public class Obstacle implements Serializable{
-    
+public class Obstacle implements Serializable {
+
     // Variable for coordinate(x,y)
     private int posX;
     private int posY;
-    
+
     // ImageIcon
     private ImageIcon obstacleImage;
-    
+
     // Empty Constructor
-    public Obstacle(){}
+    public Obstacle() {
+    }
 
     // Constructor with params
-    public Obstacle(int posX, int posY){
+    public Obstacle(int posX, int posY) {
         this.posX = posX;
         this.posY = posY;
     }
-    
+
     // Getters and setters
-    public int getPosX(){
+    public int getPosX() {
         return posX;
     }
 
@@ -37,8 +37,8 @@ public class Obstacle implements Serializable{
 
     public int getPosY() {
         return posY;
-    }   
-    
+    }
+
     public void setPosY(int posY) {
         this.posY = posY;
     }
@@ -46,8 +46,8 @@ public class Obstacle implements Serializable{
     public ImageIcon getObstacleImg() {
         return obstacleImage;
     }
-    
-    public void setObstacleImg(ImageIcon obstacleImage){
+
+    public void setObstacleImg(ImageIcon obstacleImage) {
         this.obstacleImage = obstacleImage;
     }
 }

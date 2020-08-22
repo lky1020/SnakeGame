@@ -1,4 +1,3 @@
-
 package adt;
 
 import java.io.Serializable;
@@ -8,30 +7,30 @@ import java.io.Serializable;
  * @author KXian
  */
 public class ArrayList<T> implements ListInterface<T>, Serializable {
-    
+
     private T[] array;
     private int length;
     private static final int DEFAULT_CAPACITY = 5;
-    
+
     // Default Constructor
-    public ArrayList(){
+    public ArrayList() {
         this(DEFAULT_CAPACITY);
     }
-    
+
     // Constructor with intial capacity params
-    public ArrayList(int initialCapacity){
+    public ArrayList(int initialCapacity) {
         length = 0;
         array = (T[]) new Object[initialCapacity];
     }
-    
+
     // Add new entry
     @Override
     public boolean add(T newEntry) {
-        if(isArrayFull()){
+        if (isArrayFull()) {
             doubleArraySize();
         }
         array[length] = newEntry;
-        length ++;
+        length++;
         return true;
     }
 
@@ -40,7 +39,7 @@ public class ArrayList<T> implements ListInterface<T>, Serializable {
     public boolean add(int newPosition, T newEntry) {
         if ((newPosition >= 1) && (newPosition <= length + 1)) {
             if (isArrayFull()) {
-              doubleArraySize();
+                doubleArraySize();
             }
             makeRoom(newPosition);
             array[newPosition - 1] = newEntry;
@@ -54,13 +53,13 @@ public class ArrayList<T> implements ListInterface<T>, Serializable {
     @Override
     public T remove(int givenPosition) {
         T result = null;
-        if((givenPosition >= 1) && (givenPosition <= length)){
+        if ((givenPosition >= 1) && (givenPosition <= length)) {
             result = array[givenPosition - 1];
-            
-            if(givenPosition < length){
+
+            if (givenPosition < length) {
                 removeGap(givenPosition);
             }
-            
+
             length--;
         }
         return result;
@@ -75,7 +74,7 @@ public class ArrayList<T> implements ListInterface<T>, Serializable {
     // Replace an entry with a position and new entry
     @Override
     public boolean replace(int givenPosition, T newEntry) {
-        if((givenPosition >= 1) && (givenPosition <= length)){
+        if ((givenPosition >= 1) && (givenPosition <= length)) {
             array[givenPosition - 1] = newEntry;
             return true;
         }
@@ -86,8 +85,8 @@ public class ArrayList<T> implements ListInterface<T>, Serializable {
     @Override
     public T getEntry(int givenPosition) {
         T result = null;
-        
-        if((givenPosition >= 1) && (givenPosition <= length)){
+
+        if ((givenPosition >= 1) && (givenPosition <= length)) {
             result = array[givenPosition - 1];
         }
         return result;
@@ -97,8 +96,8 @@ public class ArrayList<T> implements ListInterface<T>, Serializable {
     @Override
     public boolean contains(T anEntry) {
         boolean found = false;
-        for (int i = 0; !found && (i < length); i++){
-            if(anEntry.equals(array[i])){
+        for (int i = 0; !found && (i < length); i++) {
+            if (anEntry.equals(array[i])) {
                 found = true;
             }
         }
@@ -122,46 +121,46 @@ public class ArrayList<T> implements ListInterface<T>, Serializable {
     public boolean isArrayFull() {
         return length == array.length;
     }
-    
+
     // Find the first position of an entry - returns 0 if not found 
     @Override
-    public int locate(T anEntry){
+    public int locate(T anEntry) {
         boolean found = false;
         int result = 0;
-        for(int i = 0; !found && (i < length); i++){
-            if(anEntry.equals(array[i])){
+        for (int i = 0; !found && (i < length); i++) {
+            if (anEntry.equals(array[i])) {
                 found = true;
                 result = i;
             }
         }
         return result;
     }
-    
-    public void makeRoom(int newPosition){
+
+    public void makeRoom(int newPosition) {
         int newIndex = newPosition + 1;
         int lastIndex = length - 1;
-        
-        for (int i = lastIndex; i >= newIndex; i--){
+
+        for (int i = lastIndex; i >= newIndex; i--) {
             array[i + 1] = array[i];
         }
     }
-    
-    public void removeGap(int givenPosition){
+
+    public void removeGap(int givenPosition) {
         int removedIndex = givenPosition - 1;
         int lastIndex = length - 1;
-        
-        for(int i = removedIndex; i < lastIndex; i++){
+
+        for (int i = removedIndex; i < lastIndex; i++) {
             array[i] = array[i + 1];
         }
     }
-    
-    public void doubleArraySize(){
+
+    public void doubleArraySize() {
         T[] oldArray = array;
         int oldSize = length;
-        
+
         array = (T[]) new Object[oldSize * 2];
-        
-        for(int i = 0; i < oldSize; i ++){
+
+        for (int i = 0; i < oldSize; i++) {
             array[i] = oldArray[i];
         }
     }

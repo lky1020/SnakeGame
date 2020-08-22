@@ -39,8 +39,8 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     private int[] snakeYLength = new int[750];
     
     //initial postion of snake
-    private final int[] initialXPos = new int[]{100, 75, 50};
-    private final int initialYPos = 100;
+    private final int[] INITIAL_X_POS = new int[]{100, 75, 50};
+    private final int INITIAL_Y_POS = 100;
     
     //direction of snake
     private char direction;
@@ -58,13 +58,11 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     private int[] foodYPos = null;
     private Food foodPosition = new Food();
     
-    // Added Level Object
-    private GameLevel level = new GameLevel();
-    
     private int scores = 0;
     
-    //ADT
-    QueueInterface<Food> foodQueue = new CircularLinkedQueue<>();
+    ////ADT
+    private GameLevel level = new GameLevel();
+    private QueueInterface<Food> foodQueue = new CircularLinkedQueue<>();
     
     public Snake(){}
     
@@ -193,7 +191,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             //set to default location
             if(movement == false){
 
-                setInitialSnakePosition(this.initialXPos, this.initialYPos);
+                setInitialSnakePosition(this.INITIAL_X_POS, this.INITIAL_Y_POS);
             }
 
             initComponents(graphics);
@@ -219,14 +217,14 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
     }
 
     //Initialize Snake Position
-    public void setInitialSnakePosition(int[] initialXPos, int initialYPos){
-        snakeXLength[2] = initialXPos[2];
-        snakeXLength[1] = initialXPos[1];
-        snakeXLength[0] = initialXPos[0];
+    public void setInitialSnakePosition(int[] INITIAL_X_POS, int INITIAL_Y_POS){
+        snakeXLength[2] = INITIAL_X_POS[2];
+        snakeXLength[1] = INITIAL_X_POS[1];
+        snakeXLength[0] = INITIAL_X_POS[0];
             
-        snakeYLength[2] = initialYPos;
-        snakeYLength[1] = initialYPos;
-        snakeYLength[0] = initialYPos;
+        snakeYLength[2] = INITIAL_Y_POS;
+        snakeYLength[1] = INITIAL_Y_POS;
+        snakeYLength[0] = INITIAL_Y_POS;
     }
     
     //Initialize the component of the frame
@@ -417,7 +415,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
         }
     }
 
-    public final void initSnakeTime(int minutes){
+    public void initSnakeTime(int minutes){
         this.setMinutes(minutes);
         this.setSeconds(0);
     }
