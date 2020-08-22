@@ -160,8 +160,8 @@ public class SnakeGameplay extends javax.swing.JFrame {
         gameLevelPanel.add(new JLabel("Please Enter Player Name (Max 7 Character): "), BorderLayout.CENTER);
 
         //Player Name
-        JTextField playerIDTextField = new JTextField(10);
-        gameLevelPanel.add(playerIDTextField, BorderLayout.EAST);
+        JTextField playerNameTextField = new JTextField(10);
+        gameLevelPanel.add(playerNameTextField, BorderLayout.EAST);
 
         //Game Level
         gameLevelPanel.add(new JLabel("Please Choose Game Level: "), BorderLayout.SOUTH);
@@ -171,7 +171,7 @@ public class SnakeGameplay extends javax.swing.JFrame {
                 null, GAME_LEVEL, null);
 
         //check player name
-        if (playerIDTextField.getText().equals("") || playerIDTextField.getText().length() > 7) {
+        if (playerNameTextField.getText().equals("") || playerNameTextField.getText().length() > 7) {
 
             JOptionPane.showMessageDialog(null, "Please Enter Valid Player Name!!!", "Invalid Player Name", JOptionPane.ERROR_MESSAGE);
 
@@ -189,20 +189,20 @@ public class SnakeGameplay extends javax.swing.JFrame {
 
                     startId++;
 
-                    if (leaderBoardList.getEntry(i).getPlayerSortedList().getEntry(j).getName().equals(playerIDTextField.getText())) {
+                    if (leaderBoardList.getEntry(i).getPlayerSortedList().getEntry(j).getName().equals(playerNameTextField.getText())) {
                         level = i;
                         location = j;
                     }
                 }
             }
 
-            //Player that will pass to the 
+            //Player that will pass to the Snake.java
             Player player = null;
             player.setIdTemp(startId);
             //create new player record if no exist in leaderboard
             if (level == 0 && location == 0) {
 
-                player = new Player(playerIDTextField.getText());
+                player = new Player(playerNameTextField.getText());
 
             } else {
 
