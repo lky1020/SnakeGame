@@ -38,7 +38,12 @@ public class SnakeGameplay extends javax.swing.JFrame {
 
         //refresh current game status of play if player score new high score
         player.getCurrentGameStatus();
-
+        
+        //player level still null (set the current level to the first game history of player)
+        if(player.getCurrentLevel() == null){
+            player.setCurrentLevel(player.getGameHistory().getEntry(1).getLevel());
+        }
+        
         int level = 0;
         int location = 0;
         //search the player info (start from 1)

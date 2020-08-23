@@ -511,7 +511,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
                 
                 gameHistory.add(new GameHistory(this.level, this.scores));
                 player.setGameHistory(gameHistory);
-                
+
             }  
             
             scores = 0;
