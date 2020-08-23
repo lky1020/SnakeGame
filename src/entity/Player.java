@@ -2,7 +2,6 @@ package entity;
 
 import adt.*;
 import java.io.Serializable;
-import java.util.Iterator;
 
 public class Player implements Comparable<Player>, Serializable {
 
@@ -13,6 +12,7 @@ public class Player implements Comparable<Player>, Serializable {
     private int highScore = 0;
     private ListInterfaceWithIterator<GameHistory> gameHistory;
 
+    //CONSTRUCTORS
     public Player() {
     }
 
@@ -28,7 +28,8 @@ public class Player implements Comparable<Player>, Serializable {
 
         this.getCurrentGameStatus();
     }
-
+    
+    //GETTERS AND SETTERS
     public static int getIdTemp() {
         return idTemp;
     }
