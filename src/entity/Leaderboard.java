@@ -1,3 +1,7 @@
+/**
+ *
+ * @author yong0312
+ */
 package entity;
 
 import adt.*;
