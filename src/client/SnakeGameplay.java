@@ -373,7 +373,8 @@ public class SnakeGameplay extends javax.swing.JFrame {
                 gameHistoryTextArea.setBackground(new Color(0, 0, 0, 0));
                 gameHistoryTextArea.setEditable(false);
 
-                String str = leaderBoardList.getEntry(level).getPlayerSortedList().getEntry(location).getId() + "\t" + leaderBoardList.getEntry(level).getPlayerSortedList().getEntry(location).getName();
+                String str = leaderBoardList.getEntry(level).getPlayerSortedList().getEntry(location).getId() + 
+                        "\t" + leaderBoardList.getEntry(level).getPlayerSortedList().getEntry(location).getName();
 
                 //the list is start from 1
                 for (int i = 1; i <= gameHistory.getLength(); i++) {

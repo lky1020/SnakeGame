@@ -1,3 +1,7 @@
+/**
+ *
+ * @author YongChenMeow
+ */
 package entity;
 
 import java.io.Serializable;

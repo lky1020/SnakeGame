@@ -1,7 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ *
+ * @author YongChenMeow
  */
 package adt;
 
@@ -88,7 +87,7 @@ public class LinkedListWithIterator<T> implements ListInterfaceWithIterator<T>, 
                 }
                 result = nodeBefore.next.data;  // save entry to be removed
                 nodeBefore.next = nodeBefore.next.next;	// make node before point to node after the
-            } 																// one to be deleted (to disconnect node from chain)
+            } 						// one to be deleted (to disconnect node from chain)
 
             length--;
         }

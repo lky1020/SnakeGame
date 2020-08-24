@@ -1,3 +1,7 @@
+/**
+ *
+ * @author YongChenMeow
+ */
 package adt;
 
 import java.util.Iterator;
