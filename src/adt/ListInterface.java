@@ -3,6 +3,8 @@ package adt;
 /**
  * ListInterface.java An interface for the ADT list. Entries in the list have
  * positions that begin with 1.
+ * 
+ * @author kuanxian1
  */
 public interface ListInterface<T> {
 

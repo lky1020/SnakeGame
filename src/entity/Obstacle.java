@@ -1,12 +1,12 @@
+/**
+ *
+ * @author kuanxian1
+ */
 package entity;
 
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 
-/**
- *
- * @author KXian
- */
 public class Obstacle implements Serializable {
 
     // Variable for coordinate(x,y)

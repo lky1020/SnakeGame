@@ -1,3 +1,7 @@
+/**
+ *
+ * @author kuanxian1
+ */
 package entity;
 
 import javax.swing.ImageIcon;

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author KXian
+ * @author kuanxian1
  */
 public class ArrayList<T> implements ListInterface<T>, Serializable {
 
