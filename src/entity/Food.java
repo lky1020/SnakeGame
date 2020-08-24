@@ -3,6 +3,11 @@ package entity;
 import java.util.Random;
 import javax.swing.ImageIcon;
 
+/**
+ *
+ * @author lky1020
+ */
+
 public class Food {
 
     //ImageIcon

@@ -11,9 +11,10 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- *
- * @author User
+ * 
+ * @author lky1020
  */
+
 public class SnakeGameplay extends javax.swing.JFrame {
 
     private static final Object[] GAME_LEVEL = {"Easy", "Normal", "Hard"};

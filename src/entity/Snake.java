@@ -15,6 +15,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 
+/**
+ * @author Mukul Saini
+ * @author lky1020
+ */
 
 public class Snake extends JPanel implements KeyListener, ActionListener{
     
@@ -203,9 +207,7 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
             initFoodPosition(graphics);
 
             initObstaclePosition(graphics);
-            
-            
-            
+
             graphics.dispose();
             
         }else{
@@ -402,7 +404,8 @@ public class Snake extends JPanel implements KeyListener, ActionListener{
         for(int i = 1; i <= level.getObstacle().getLength(); i++){
             level.getObstacleImg().paintIcon(this, graphics, level.getObstacle().getEntry(i).getPosX(), level.getObstacle().getEntry(i).getPosY());
 
-            //Prevent Food and Obstacle in same position (food will set at initFoodPosition
+            //Check food here to prevent error in repaint(); that is to perform action in Snake Game
+            //Prevent Food and Obstacle in same position (food will set at initFoodPosition)
             if(!foodQueue.isEmpty() && (foodXPos[foodPosition.getXPos()] == level.getObstacle().getEntry(i).getPosX()) && (foodYPos[foodPosition.getYPos()] == level.getObstacle().getEntry(i).getPosY())){
                 
                 //Dequeue the food that duplicate the obstacle
